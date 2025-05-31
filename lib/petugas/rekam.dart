@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:truckcoal_app/petugas/tambahrekam.dart';
 import 'package:truckcoal_app/widgets/appbarview.dart';
+import 'package:truckcoal_app/widgets/backgroundview.dart';
 
 class Rekam extends StatefulWidget {
   const Rekam({super.key});
@@ -21,77 +22,142 @@ class _RekamState extends State<Rekam> {
           MaterialPageRoute(builder: (context) => TambahRekam()),
         );
       }),
-      body: StreamBuilder<QuerySnapshot>(
-        stream:
-            FirebaseFirestore.instance
-                .collection('record')
-                .orderBy('createdAt', descending: true)
-                .snapshots(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
-          }
+      body: Container(
+        decoration: backgroundView3(),
+        padding: const EdgeInsets.all(10),
+        child: Column(
+          children: [
+            Expanded(
+              child: StreamBuilder<QuerySnapshot>(
+                stream:
+                    FirebaseFirestore.instance
+                        .collection('record')
+                        .orderBy('createdAt', descending: true)
+                        .snapshots(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
 
-          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-            return Center(child: Text('Tidak ada data.'));
-          }
+                  if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                    return const Center(child: Text('Tidak ada data.'));
+                  }
 
-          final data = snapshot.data!.docs;
+                  final data = snapshot.data!.docs;
 
-          return LayoutBuilder(
-            builder: (context, constraints) {
-              return SingleChildScrollView(
-                scrollDirection: Axis.vertical,
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(minWidth: constraints.maxWidth),
-                    child: FittedBox(
-                      fit: BoxFit.scaleDown,
-                      alignment: Alignment.topLeft,
-                      child: DataTable(
-                        columnSpacing: 24,
-                        columns: const [
-                          DataColumn(label: Text('Truck')),
-                          DataColumn(label: Text('Status')),
-                          DataColumn(label: Text('Waktu keluar')),
-                          DataColumn(label: Text('Waktu Masuk')),
-                          DataColumn(label: Text('Coal Weight')),
-                        ],
-                        rows:
-                            data.map((doc) {
-                              final d = doc.data() as Map<String, dynamic>;
+                  String formatDate(String iso) {
+                    final dt = DateTime.tryParse(iso) ?? DateTime.now();
+                    return DateFormat('dd/MM/yyyy\nHH:mm').format(dt);
+                  }
 
-                              String formatDate(String iso) {
-                                final dt =
-                                    DateTime.tryParse(iso) ?? DateTime.now();
-                                return DateFormat(
-                                  'dd/MM/yyyy HH:mm',
-                                ).format(dt);
-                              }
+                  return Container(
+                    width: double.infinity,
+                    child: DataTable(
+                      columnSpacing: 10,
+                      columns: const [
+                        DataColumn(
+                          label: Center(
+                            child: Text(
+                              'Truck',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ),
+                        DataColumn(
+                          label: Center(
+                            child: Text(
+                              'Status',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ),
+                        DataColumn(
+                          label: Center(
+                            child: Text(
+                              'Waktu\nKeluar',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ),
+                        DataColumn(
+                          label: Center(
+                            child: Text(
+                              'Waktu\nMasuk',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ),
+                        DataColumn(
+                          label: Center(
+                            child: Text(
+                              'Coal\nWeight',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ),
+                      ],
+                      rows:
+                          data.take(7).map((doc) {
+                            final d = doc.data() as Map<String, dynamic>;
 
-                              return DataRow(
-                                cells: [
-                                  DataCell(Text(d['truck'] ?? '-')),
-                                  DataCell(Text(d['status'] ?? '-')),
-                                  DataCell(Text(formatDate(d['keluar'] ?? ''))),
-                                  DataCell(Text(formatDate(d['masuk'] ?? ''))),
-                                  DataCell(
-                                    Text(
-                                      '${(d['coalWeight'] ?? 0).toStringAsFixed(3)} Kg',
+                            return DataRow(
+                              cells: [
+                                DataCell(
+                                  Center(
+                                    child: Text(
+                                      d['truck'] ?? '-',
+                                      textAlign: TextAlign.center,
+                                      maxLines: 2,
                                     ),
                                   ),
-                                ],
-                              );
-                            }).toList(),
-                      ),
+                                ),
+                                DataCell(
+                                  Center(
+                                    child: Text(
+                                      d['status'] ?? '-',
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ),
+                                ),
+                                DataCell(
+                                  Center(
+                                    child: Text(
+                                      formatDate(d['keluar'] ?? ''),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ),
+                                ),
+                                DataCell(
+                                  Center(
+                                    child: Text(
+                                      formatDate(d['masuk'] ?? ''),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ),
+                                ),
+                                DataCell(
+                                  Center(
+                                    child: Text(
+                                      '${(d['coalWeight'] ?? 0)}\nKg',
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            );
+                          }).toList(),
                     ),
-                  ),
-                ),
-              );
-            },
-          );
-        },
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

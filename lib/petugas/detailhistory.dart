@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:truckcoal_app/widgets/appbarview.dart';
 import 'package:truckcoal_app/widgets/backgroundview.dart';
+import 'package:truckcoal_app/widgets/tambahuserview.dart';
 
 class DetailHistory extends StatelessWidget {
   final Map<String, dynamic> data;
@@ -24,15 +26,15 @@ class DetailHistory extends StatelessWidget {
         decoration: backgroundView3(),
         child: Container(
           padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: const Color(0xFFFFF3E0),
-            borderRadius: BorderRadius.circular(16),
-          ),
           child: ListView(
             children: [
-              const Text(
+              Text(
                 'DETAIL TRANSAKSI TIMBANGAN',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                  fontFamily: GoogleFonts.lexend().fontFamily,
+                ),
               ),
               const SizedBox(height: 16),
               infoItem('Truck Name', data['truck']),
@@ -51,25 +53,6 @@ class DetailHistory extends StatelessWidget {
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  Widget infoItem(String title, String? value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(width: 130, child: Text('$title')),
-          Text(':  ', style: TextStyle(fontWeight: FontWeight.bold)),
-          Expanded(
-            child: Text(
-              value ?? '-',
-              style: const TextStyle(fontWeight: FontWeight.w500),
-            ),
-          ),
-        ],
       ),
     );
   }

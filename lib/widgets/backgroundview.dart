@@ -31,13 +31,12 @@ backgroundView2() {
 }
 
 backgroundView3() {
-  return BoxDecoration(
+  return const BoxDecoration(
     gradient: LinearGradient(
       colors: [
-        Color.fromARGB(58, 255, 194, 99), // Kuning pucat
-        const Color.fromARGB(258, 152, 249, 249), // Gradasi ke warna oranye
+        Color.fromARGB(255, 255, 223, 158), // Oren lembut
+        Color.fromARGB(255, 240, 240, 240), // Abu terang
       ],
-      stops: [0.1, 1.0],
       begin: Alignment.topCenter,
       end: Alignment.bottomCenter,
     ),

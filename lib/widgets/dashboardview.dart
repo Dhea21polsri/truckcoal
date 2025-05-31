@@ -3,57 +3,49 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 infoView(
-  String text,
-  // String title,
+  String label,
   Color backgroundColor,
-  String imageAssetPath, // Menambahkan parameter untuk gambar
-) {
+  String imageAssetPath, {
+  required String value,
+}) {
   return Container(
     margin: const EdgeInsets.only(top: 20, left: 10, right: 10),
-    width: 380, // Menetapkan lebar container
-    height: 68, // Menetapkan tinggi container
+    width: double.infinity,
+    height: 68,
     decoration: BoxDecoration(
-      color: backgroundColor, // Menggunakan warna yang dinamis
-      borderRadius: BorderRadius.circular(10), // Sudut yang lebih halus
+      color: backgroundColor,
+      borderRadius: BorderRadius.circular(10),
       boxShadow: const [
         BoxShadow(color: Colors.black26, blurRadius: 5, offset: Offset(0, 3)),
       ],
     ),
     child: Padding(
-      padding: const EdgeInsets.all(12.0), // Memberikan jarak di sekitar teks
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: Row(
-        mainAxisAlignment:
-            MainAxisAlignment.spaceBetween, // Menyusun teks ke kiri dan kanan
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Row(
             children: [
-              // Menggunakan Image.asset untuk menggantikan Icon
-              Image.asset(
-                imageAssetPath, // Path gambar yang berbeda untuk setiap case
-                width: 24, // Menetapkan lebar gambar
-                height: 24, // Menetapkan tinggi gambar
+              Image.asset(imageAssetPath, width: 24, height: 24),
+              const SizedBox(width: 10),
+              Text(
+                label,
+                style: TextStyle(
+                  fontFamily: GoogleFonts.lexend().fontFamily,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black,
+                ),
               ),
-              const SizedBox(
-                width: 8,
-              ), // Memberikan jarak antara gambar dan teks
-              // Text(
-              //   title, // Tampilkan hanya AKUMULASI atau VALIDASI tanpa duplikasi
-              //   style: const TextStyle(
-              //     fontFamily: GoogleFonts.lexend().fontFamily,
-              //     fontSize: 18, // Ukuran font
-              //     fontWeight: FontWeight.bold, // Ketebalan font
-              //     color: Colors.black, // Warna teks
-              //   ),
-              // ),
             ],
           ),
           Text(
-            text, // Tampilkan nilai yang sesuai (validasi atau bulan)
+            value,
             style: TextStyle(
               fontFamily: GoogleFonts.lexend().fontFamily,
-              fontSize: 18, // Ukuran font
-              fontWeight: FontWeight.bold, // Ketebalan font
-              color: Colors.black, // Warna teks
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Colors.black,
             ),
           ),
         ],
@@ -62,14 +54,13 @@ infoView(
   );
 }
 
-// Membuat Container dengan teks dan profil
 profileView() {
   return Container(
-    width: double.infinity, // Menetapkan lebar container
-    height: 203, // Menetapkan tinggi container
+    width: double.infinity,
+    height: 203,
     decoration: BoxDecoration(
-      color: const Color(0xFF24685B), // Hijau gelap
-      borderRadius: BorderRadius.circular(15), // Sudut yang lebih halus
+      color: const Color(0xFF24685B),
+      borderRadius: BorderRadius.circular(15),
       boxShadow: const [
         BoxShadow(color: Colors.black26, blurRadius: 5, offset: Offset(0, 3)),
       ],
@@ -79,14 +70,11 @@ profileView() {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Baris untuk menyambut pengguna dan menampilkan profil
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const SizedBox(
-                width: 10,
-              ), // Menambahkan jarak antara foto dan teks
               Text(
-                'Selamat Datang!',
+                'Selamat Datang di \nTruckCoal ',
                 style: TextStyle(
                   fontFamily: GoogleFonts.lexend().fontFamily,
                   fontSize: 22,
@@ -94,12 +82,9 @@ profileView() {
                   color: Colors.white,
                 ),
               ),
-              const SizedBox(width: 30),
               CircleAvatar(
                 radius: 30,
-                backgroundImage: AssetImage(
-                  'assets/img/dashboardpic.png',
-                ), // Pastikan path benar
+                backgroundImage: AssetImage('assets/img/dashboardpic.png'),
               ),
             ],
           ),
@@ -119,75 +104,50 @@ profileView() {
   );
 }
 
-// Membuat Card untuk TRUK KELUAR DAN MASUK
-truckreportView() {
+truckreportView({required String trukKeluar}) {
   return Card(
     color: Colors.white,
-    margin: const EdgeInsets.only(bottom: 5, left: 10, right: 10),
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(15), // Membuat sudut lebih halus
-    ),
-    elevation: 5, // Menambahkan bayangan
+    margin: const EdgeInsets.symmetric(horizontal: 10),
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+    elevation: 5,
     child: Container(
-      width: 380, // Menetapkan lebar container
-      height: 108, // Menetapkan tinggi container
+      width: double.infinity,
+      height: 108,
+      padding: const EdgeInsets.all(12),
       child: Row(
         children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Image.asset(
-              'assets/img/truk.png', // Ganti dengan path gambar Anda
-              width: 102, // Menetapkan lebar gambar
-              height: 82, // Menetapkan tinggi gambar
-            ),
-          ),
-          // Menambahkan SizedBox untuk memberi jarak antara gambar dan teks
-          const SizedBox(width: 50), // Memberikan jarak antara gambar dan teks
-          // Kolom untuk teks bertingkat dan angka sejajar
-          Column(
-            crossAxisAlignment:
-                CrossAxisAlignment
-                    .center, // Menyusun teks dan angka secara vertikal
-            mainAxisAlignment:
-                MainAxisAlignment.center, // Menyusun secara vertikal di tengah
-            children: [
-              RichText(
-                textAlign:
-                    TextAlign.center, // Menambahkan textAlign untuk center
-                text: TextSpan(
+          Image.asset('assets/img/truk.png', width: 82, height: 82),
+          const SizedBox(width: 20),
+          Expanded(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text(
+                  "TRUK KELUAR\nDAN MASUK",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontFamily: GoogleFonts.lexend().fontFamily,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                    color: Colors.black,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    TextSpan(
-                      text: "TRUK KELUAR\n", // Teks pertama dengan baris baru
+                    Text(
+                      '$trukKeluar',
                       style: TextStyle(
-                        fontFamily: GoogleFonts.lexend().fontFamily,
+                        fontSize: 16,
                         fontWeight: FontWeight.bold,
-                        fontSize: 18,
-                        color: Colors.black,
-                      ),
-                    ),
-                    TextSpan(
-                      text: "DAN MASUK", // Teks kedua
-                      style: TextStyle(
-                        fontFamily: GoogleFonts.lexend().fontFamily,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
-                        color: Colors.black,
                       ),
                     ),
                   ],
                 ),
-              ),
-
-              // Menambahkan jarak lebih antara teks dan angka
-              const SizedBox(height: 8), // Menambahkan jarak lebih
-              // Text(
-              //   trukMasuk, // Menampilkan data truk masuk
-              //   style: const TextStyle(
-              //     fontSize: 22,
-              //     fontWeight: FontWeight.bold,
-              //   ),
-              // ),
-            ],
+              ],
+            ),
           ),
         ],
       ),
@@ -195,27 +155,20 @@ truckreportView() {
   );
 }
 
-// Membuat Card untuk TIMBANGAN MASUK DAN KELUAR (dalam bentuk persegi dengan ikon di atas dan teks di bawah)
-timbanganView(String title, String imageAssetPath) {
+timbanganView(String title, String imageAssetPath, {required String value}) {
   return Card(
     color: Colors.white,
     margin: const EdgeInsets.only(bottom: 20, left: 10, right: 10),
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(10), // Membuat sudut lebih halus
-    ),
-    elevation: 5, // Menambahkan bayangan
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+    elevation: 5,
     child: Container(
-      width: 165, // Menetapkan lebar container
-      height: 182, // Tinggi agar persegi
+      width: 165,
+      height: 182,
+      padding: const EdgeInsets.symmetric(vertical: 16),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center, // Tengah vertikal
-        crossAxisAlignment: CrossAxisAlignment.center, // Tengah horizontal
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Image.asset(
-            imageAssetPath, // Ganti dengan path gambar yang sesuai
-            width: 40, // Menetapkan lebar gambar
-            height: 40, // Menetapkan tinggi gambar
-          ),
+          Image.asset(imageAssetPath, width: 40, height: 40),
           const SizedBox(height: 10),
           Text(
             title,
@@ -227,10 +180,10 @@ timbanganView(String title, String imageAssetPath) {
             ),
           ),
           const SizedBox(height: 8),
-          // Text(
-          //   '$count',
-          //   style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-          // ),
+          Text(
+            value,
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
         ],
       ),
     ),

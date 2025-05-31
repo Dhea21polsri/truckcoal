@@ -7,10 +7,11 @@ import 'package:truckcoal_app/views/home.dart';
 import 'package:truckcoal_app/views/profile.dart';
 
 class BottomNavBar extends StatefulWidget {
-  final String role; // 'Petugas' atau 'Supervisor'
+  final String role;
+    final String username;
 
-  const BottomNavBar({Key? key, required this.role}) : super(key: key);
-
+  const BottomNavBar({Key? key, required this.role, required this.username})
+    : super(key: key);
   @override
   State<BottomNavBar> createState() => _BottomNavBarState();
 }
@@ -18,19 +19,18 @@ class BottomNavBar extends StatefulWidget {
 class _BottomNavBarState extends State<BottomNavBar> {
   int _currentIndex = 0;
   List<Map<String, dynamic>> riwayatData =
-      []; // Data riwayat akan disimpan di sini
+      []; 
 
   @override
   Widget build(BuildContext context) {
-    // Halaman sesuai role
+  
     final List<Widget> pages;
     if (widget.role == 'petugas') {
-      pages = [Home(), History(), Rekam(), Profile()];
+      pages = [Home(), History(), Rekam(), Profile(username: widget.username)];
     } else {
-      pages = [Home(), Verifikasi(), User(), Profile()];
+      pages = [Home(), Verifikasi(), User(), Profile(username: widget.username)];
     }
 
-    // Menu bawah sesuai role
     final List<BottomNavigationBarItem> navItems =
         widget.role == 'petugas'
             ? [
@@ -57,11 +57,11 @@ class _BottomNavBarState extends State<BottomNavBar> {
                 label: 'Dashboard',
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.verified), // Ganti dengan asset jika ada
+                icon: Icon(Icons.verified), 
                 label: 'Verification',
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.group), // Ganti dengan asset jika ada
+                icon: Icon(Icons.group),
                 label: 'User',
               ),
               BottomNavigationBarItem(

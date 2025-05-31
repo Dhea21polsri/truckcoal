@@ -35,7 +35,9 @@ class _LoginState extends State<Login> {
         // Navigasi ke BottomNavBar sesuai role
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (_) => BottomNavBar(role: role)),
+          MaterialPageRoute(
+            builder: (_) => BottomNavBar(role: role, username: username),
+          ),
         );
       } else {
         // Username/password salah
@@ -50,7 +52,6 @@ class _LoginState extends State<Login> {
       ).showSnackBar(SnackBar(content: Text('Terjadi kesalahan saat login')));
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -71,7 +72,7 @@ class _LoginState extends State<Login> {
                     TextAlign.left,
                     Colors.black,
                     FontWeight.bold,
-                    16.0,
+                    20.0,
                   ),
                   const SizedBox(height: 12),
                   textView(

@@ -56,7 +56,7 @@ class _HistoryState extends State<History> {
                   margin: const EdgeInsets.symmetric(vertical: 6),
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFFFECB3), // warna seperti gambar
+                    color: const Color(0xFFFFECB3), 
                     borderRadius: BorderRadius.circular(12),
                     boxShadow: [
                       BoxShadow(

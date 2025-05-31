@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
+
 import 'package:truckcoal_app/widgets/appbarview.dart';
 import 'package:truckcoal_app/widgets/backgroundview.dart';
 import 'package:truckcoal_app/widgets/rekamview.dart';
@@ -27,12 +29,16 @@ class _TambahRekamState extends State<TambahRekam> {
 
   List<Map<String, dynamic>> submittedData = [];
 
+  @override
+  void initState() {
+    super.initState();
+    loadTemporaryData();
+  }
+
   void calculateCoalWeight() {
     final truckWeight = double.tryParse(truckWeightController.text) ?? 0;
     final scaleWeight = double.tryParse(scaleWeightController.text) ?? 0;
     final coalWeight = scaleWeight - truckWeight;
-
-    // Tambahkan logika lainnya bila perlu
   }
 
   Future<void> _pickDateTime({required bool isMasuk}) async {
@@ -67,6 +73,47 @@ class _TambahRekamState extends State<TambahRekam> {
     });
   }
 
+  Future<void> saveTemporaryData() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    Map<String, dynamic> data = {
+      'truck': truckNameController.text.trim(),
+      'lokasi': locationController.text.trim(),
+      'status': status,
+      'ritase': ritase,
+      'shift': shift,
+      'masuk': masukDate.toIso8601String(),
+      'keluar': keluarDate.toIso8601String(),
+      'truckWeight': truckWeightController.text.trim(),
+      'scaleWeight': scaleWeightController.text.trim(),
+    };
+
+    await prefs.setString('temp_rekam_data', jsonEncode(data));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Data sementara berhasil disimpan.')),
+    );
+  }
+
+  Future<void> loadTemporaryData() async {
+    final prefs = await SharedPreferences.getInstance();
+    final jsonString = prefs.getString('temp_rekam_data');
+    if (jsonString != null) {
+      final data = jsonDecode(jsonString);
+
+      setState(() {
+        truckNameController.text = data['truck'] ?? '';
+        locationController.text = data['lokasi'] ?? '';
+        status = data['status'] ?? 'Retail';
+        ritase = data['ritase'] ?? '1';
+        shift = data['shift'] ?? '1';
+        masukDate = DateTime.tryParse(data['masuk']) ?? DateTime.now();
+        keluarDate = DateTime.tryParse(data['keluar']) ?? DateTime.now();
+        truckWeightController.text = data['truckWeight'] ?? '';
+        scaleWeightController.text = data['scaleWeight'] ?? '';
+      });
+    }
+  }
+
   void submitForm() async {
     try {
       final truckName = truckNameController.text.trim();
@@ -96,11 +143,12 @@ class _TambahRekamState extends State<TambahRekam> {
         'scaleWeight': scaleWeight,
         'coalWeight': coalWeight,
         'createdAt': FieldValue.serverTimestamp(),
-        'proses': 'Belum Terverifikasi', // ✅ Tambahan field proses
+        'proses': 'Belum Terverifikasi',
       });
 
       setState(() {
         submittedData.add({
+          'id': docRef.id,
           'truck': truckName,
           'lokasi': lokasi,
           'status': status,
@@ -111,7 +159,7 @@ class _TambahRekamState extends State<TambahRekam> {
           'truckWeight': truckWeight,
           'scaleWeight': scaleWeight,
           'coalWeight': coalWeight,
-          'proses': 'Belum Terverifikasi', // ✅ simpan juga untuk tabel
+          'proses': 'Belum Terverifikasi',
         });
 
         truckNameController.clear();
@@ -126,9 +174,13 @@ class _TambahRekamState extends State<TambahRekam> {
         calculateCoalWeight();
       });
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Data berhasil disimpan ke Firestore.')),
-      );
+      // Hapus data sementara
+      final prefs = await SharedPreferences.getInstance();
+      prefs.remove('temp_rekam_data');
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Data berhasil disimpan.')));
     } catch (e) {
       print('Error saat submit: $e');
       ScaffoldMessenger.of(
@@ -141,213 +193,167 @@ class _TambahRekamState extends State<TambahRekam> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: appBarView('Tambah Record'),
-      body: Container(
-        padding: EdgeInsets.all(10),
-        decoration: backgroundView3(),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Expanded(
-                    flex: 2,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        labelView('Truck Name'),
-                        rekamView(controller: truckNameController),
-                      ],
+      body: Stack(
+        children: [
+          Container(
+            decoration: backgroundView3(),
+            height: double.infinity,
+            width: double.infinity,
+          ),
+          SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      flex: 2,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          labelView('Truck Name'),
+                          rekamView(controller: truckNameController),
+                        ],
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    flex: 1,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        labelView('Status'),
-                        dropdownstatusView(
-                          value: status,
-                          options: ['Retail', 'Pindah Stok'],
-                          onChanged: (val) {
-                            setState(() {
-                              status = val!;
-                              calculateCoalWeight();
-                            });
-                          },
-                        ),
-                      ],
+                    const SizedBox(width: 10),
+                    Expanded(
+                      flex: 1,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          labelView('Status'),
+                          dropdownstatusView(
+                            value: status,
+                            options: ['Retail', 'Pindah Stok'],
+                            onChanged: (val) {
+                              setState(() {
+                                status = val!;
+                                calculateCoalWeight();
+                              });
+                            },
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 10),
-              Row(
-                children: [
-                  Expanded(
-                    flex: 2,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        labelView('Lokasi'),
-                        rekamView(controller: locationController),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    flex: 1,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        labelView('Ritase'),
-                        dropdownVIew(
-                          value: ritase,
-                          options: ['1', '2', '3'],
-                          onChanged: (val) => setState(() => ritase = val!),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 15),
-                  Expanded(
-                    flex: 1,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        labelView('Shift'),
-                        dropdownVIew(
-                          value: shift,
-                          options: ['1', '2', '3'],
-                          onChanged: (val) => setState(() => shift = val!),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 15),
-              Row(
-                children: [
-                  Expanded(
-                    flex: 2,
-                    child: datetimeView(
-                      label: 'Waktu Masuk',
-                      dateTime: masukDate,
-                      onTap: () => _pickDateTime(isMasuk: true),
-                    ),
-                  ),
-                  const SizedBox(width: 15),
-                  Expanded(
-                    flex: 1,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        labelView('Truck Weight'),
-                        rekamView(
-                          controller: truckWeightController,
-                          suffixText: 'Kg',
-                          keyboardType: TextInputType.number,
-                          onChanged: (_) => calculateCoalWeight(),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              Row(
-                children: [
-                  Expanded(
-                    flex: 2,
-                    child: datetimeView(
-                      label: 'Waktu Keluar',
-                      dateTime: keluarDate,
-                      onTap: () => _pickDateTime(isMasuk: false),
-                    ),
-                  ),
-                  const SizedBox(width: 15),
-                  Expanded(
-                    flex: 1,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        labelView('Scale Weight'),
-                        rekamView(
-                          controller: scaleWeightController,
-                          suffixText: 'Kg',
-                          keyboardType: TextInputType.number,
-                          onChanged: (_) => calculateCoalWeight(),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  buttonView('Keep', calculateCoalWeight, Color(0xFFD7F5BA)),
-                  buttonView('Submit', submitForm, Color(0xFFD7F5BA)),
-                ],
-              ),
-              const SizedBox(height: 20),
-              Container(
-                width: double.infinity,
-                height: 300,
-                decoration: BoxDecoration(
-                  color: const Color.fromARGB(258, 152, 249, 249),
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: const [
-                    BoxShadow(color: Colors.black12, blurRadius: 3),
                   ],
                 ),
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.vertical,
-                  child: DataTable(
-                    columnSpacing: 10,
-                    columns: [
-                      DataColumn(label: Text('Truck\nName')),
-                      const DataColumn(label: Text('Status')),
-                      const DataColumn(label: Text('Waktu\nKeluar')),
-                      const DataColumn(label: Text('Waktu\nMasuk')),
-                      const DataColumn(label: Text('Coal\nWeight')),
-                      const DataColumn(label: Text('Proses')), // ✅ kolom baru
-                    ],
-                    rows:
-                        submittedData.map<DataRow>((entry) {
-                          return DataRow(
-                            cells: [
-                              DataCell(Text(entry['truck'])),
-                              DataCell(Text(entry['status'])),
-                              DataCell(
-                                Text(
-                                  DateFormat(
-                                    'dd/MM/yyyy HH:mm',
-                                  ).format(DateTime.parse(entry['keluar'])),
-                                ),
-                              ),
-                              DataCell(
-                                Text(
-                                  DateFormat(
-                                    'dd/MM/yyyy HH:mm',
-                                  ).format(DateTime.parse(entry['masuk'])),
-                                ),
-                              ),
-                              DataCell(Text('${entry['coalWeight']} Kg')),
-                              DataCell(
-                                Text(entry['proses'] ?? 'Belum Terverifikasi'),
-                              ),
-                            ],
-                          );
-                        }).toList(),
-                  ),
+                const SizedBox(height: 10),
+                Row(
+                  children: [
+                    Expanded(
+                      flex: 2,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          labelView('Lokasi'),
+                          rekamView(controller: locationController),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      flex: 1,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          labelView('Ritase'),
+                          dropdownVIew(
+                            value: ritase,
+                            options: ['1', '2', '3'],
+                            onChanged: (val) => setState(() => ritase = val!),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 15),
+                    Expanded(
+                      flex: 1,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          labelView('Shift'),
+                          dropdownVIew(
+                            value: shift,
+                            options: ['1', '2', '3'],
+                            onChanged: (val) => setState(() => shift = val!),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-            ],
+                const SizedBox(height: 15),
+                Row(
+                  children: [
+                    Expanded(
+                      flex: 2,
+                      child: datetimeView(
+                        label: 'Waktu Masuk',
+                        dateTime: masukDate,
+                        onTap: () => _pickDateTime(isMasuk: true),
+                      ),
+                    ),
+                    const SizedBox(width: 15),
+                    Expanded(
+                      flex: 1,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          labelView('Truck Weight'),
+                          rekamView(
+                            controller: truckWeightController,
+                            suffixText: 'Kg',
+                            keyboardType: TextInputType.number,
+                            onChanged: (_) => calculateCoalWeight(),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                Row(
+                  children: [
+                    Expanded(
+                      flex: 2,
+                      child: datetimeView(
+                        label: 'Waktu Keluar',
+                        dateTime: keluarDate,
+                        onTap: () => _pickDateTime(isMasuk: false),
+                      ),
+                    ),
+                    const SizedBox(width: 15),
+                    Expanded(
+                      flex: 1,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          labelView('Scale Weight'),
+                          rekamView(
+                            controller: scaleWeightController,
+                            suffixText: 'Kg',
+                            keyboardType: TextInputType.number,
+                            onChanged: (_) => calculateCoalWeight(),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    buttonView('Keep', saveTemporaryData, Color(0xFFD7F5BA)),
+                    buttonView('Submit', submitForm, Color(0xFFD7F5BA)),
+                  ],
+                ),
+                const SizedBox(height: 50),
+              ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
