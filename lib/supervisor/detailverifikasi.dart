@@ -54,13 +54,12 @@ class _DetailVerifikasiState extends State<DetailVerifikasi> {
       final docId = widget.data['id'];
       await FirebaseFirestore.instance.collection('record').doc(docId).update({
         'proses': 'sudah diverifikasi',
-        'isValidated': true, 
+        'isValidated': true,
       });
 
       if (mounted) {
         setState(() {
-          widget.data['isValidated'] =
-              true; 
+          widget.data['isValidated'] = true;
         });
       }
 
@@ -108,7 +107,10 @@ class _DetailVerifikasiState extends State<DetailVerifikasi> {
                 children: [
                   infoItem('Truck Name', data['truck']),
                   infoItem('Status', data['status']),
-                  infoItem('Lokasi Timbang', data['lokasiTimbang']),
+                  infoItem('Nama Supir', data['driverName']),
+                  infoItem('Unit Asal', data['unit']),
+                  infoItem('No Surat Jalan', data['suratJalan']),
+                  infoItem('Lokasi Timbang', data['lokasi']),
                   infoItem('Ritase', data['ritase']?.toString()),
                   infoItem('Shift', data['shift']?.toString()),
                   infoItem('Waktu Masuk', formatDateTime(data['masuk'])),

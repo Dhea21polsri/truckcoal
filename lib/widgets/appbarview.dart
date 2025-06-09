@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:truckcoal_app/widgets/textview.dart';
-import 'package:truckcoal_app/login/login.dart';
-import 'package:truckcoal_app/views/profile.dart';
 
 appBarView(judul) {
   return AppBar(

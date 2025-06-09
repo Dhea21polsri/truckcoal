@@ -53,7 +53,7 @@ class _RekamState extends State<Rekam> {
                   return Container(
                     width: double.infinity,
                     child: DataTable(
-                      columnSpacing: 10,
+                      columnSpacing: 5,
                       columns: const [
                         DataColumn(
                           label: Center(
@@ -110,17 +110,22 @@ class _RekamState extends State<Rekam> {
                                 DataCell(
                                   Center(
                                     child: Text(
-                                      d['truck'] ?? '-',
-                                      textAlign: TextAlign.center,
+                                      d['truck'] ?? '-\n',
                                       maxLines: 2,
+                                      style: TextStyle(
+                                        fontSize:
+                                            13.0, // Menyesuaikan ukuran font
+                                      ),
                                     ),
                                   ),
                                 ),
+
                                 DataCell(
                                   Center(
                                     child: Text(
                                       d['status'] ?? '-',
                                       textAlign: TextAlign.center,
+                                      style: TextStyle(fontSize: 13.0),
                                     ),
                                   ),
                                 ),
@@ -129,6 +134,10 @@ class _RekamState extends State<Rekam> {
                                     child: Text(
                                       formatDate(d['keluar'] ?? ''),
                                       textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        fontSize:
+                                            13.0, // Menyesuaikan ukuran font
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -137,6 +146,10 @@ class _RekamState extends State<Rekam> {
                                     child: Text(
                                       formatDate(d['masuk'] ?? ''),
                                       textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        fontSize:
+                                            13.0, // Menyesuaikan ukuran font
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -145,6 +158,10 @@ class _RekamState extends State<Rekam> {
                                     child: Text(
                                       '${(d['coalWeight'] ?? 0)}\nKg',
                                       textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        fontSize:
+                                            13.0, // Menyesuaikan ukuran font
+                                      ),
                                     ),
                                   ),
                                 ),

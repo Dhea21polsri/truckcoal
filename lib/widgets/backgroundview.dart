@@ -34,9 +34,10 @@ backgroundView3() {
   return const BoxDecoration(
     gradient: LinearGradient(
       colors: [
-        Color.fromARGB(255, 255, 223, 158), // Oren lembut
-        Color.fromARGB(255, 240, 240, 240), // Abu terang
+        Color.fromARGB(100, 255, 223, 158), // Oren lembut (30%)
+        Color.fromARGB(150, 240, 240, 240), // Abu terang (mulai dari 30%)
       ],
+      stops: [0.0, 0.4], // 0% - 30% oren, lalu sisanya abu
       begin: Alignment.topCenter,
       end: Alignment.bottomCenter,
     ),

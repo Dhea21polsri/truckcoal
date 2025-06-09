@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:intl/intl.dart';
 import 'package:truckcoal_app/widgets/backgroundview.dart';
-import 'package:truckcoal_app/widgets/dashboardview.dart';
+import 'package:truckcoal_app/widgets/dashboardview.dart'; // Pastikan ini mengimpor timbanganView
+import 'dart:async';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -16,75 +16,81 @@ class _HomeState extends State<Home> {
   int validasi = 0;
   int trukMasuk = 0;
   int trukKeluar = 0;
-  double timbanganMasuk = 0.0; // Changed to double for summing coalWeight
-  double timbanganKeluar = 0.0; // Changed to double for summing coalWeight
+  double timbanganMasuk = 0.0;
+  double timbanganKeluar = 0.0;
+
+  StreamSubscription? _recordSubscription;
 
   @override
   void initState() {
     super.initState();
-    fetchDashboardData();
+    final now = DateTime.now();
+    bulanAkumulasi = '${getMonth(now.month)} ${now.year}';
+    _listenToDashboardData();
   }
 
-  void fetchDashboardData() async {
+  @override
+  void dispose() {
+    _recordSubscription?.cancel();
+    super.dispose();
+  }
+
+  void _listenToDashboardData() {
     final now = DateTime.now();
     final monthStart = DateTime(now.year, now.month, 1);
     final monthEnd = DateTime(now.year, now.month + 1, 0, 23, 59, 59);
 
-    final querySnapshot =
-        await FirebaseFirestore.instance.collection('record').get();
-    final records = querySnapshot.docs;
+    _recordSubscription = FirebaseFirestore.instance
+        .collection('record')
+        .where(
+          'createdAt',
+          isGreaterThanOrEqualTo: Timestamp.fromDate(monthStart),
+        )
+        .where('createdAt', isLessThanOrEqualTo: Timestamp.fromDate(monthEnd))
+        .snapshots()
+        .listen(
+          (querySnapshot) {
+            _updateDashboardData(querySnapshot.docs);
+          },
+          onError: (error) {
+            print("Error listening to records: $error");
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Gagal memuat data dashboard: $error')),
+            );
+          },
+        );
+  }
 
+  void _updateDashboardData(List<QueryDocumentSnapshot> records) {
     int tempValidasi = 0;
-    int tempMasuk = 0;
-    int tempKeluar = 0;
-    double tempTimbanganMasuk = 0.0; // Total coalWeight for retail status
-    double tempTimbanganKeluar = 0.0; // Total coalWeight for pindah stok status
+    int tempTrukMasuk = 0;
+    int tempTrukKeluar = 0;
+    double tempTimbanganMasuk = 0.0;
+    double tempTimbanganKeluar = 0.0;
 
     for (var doc in records) {
       final data = doc.data() as Map<String, dynamic>;
 
-      final createdAtRaw = data['createdAt'];
-      DateTime? createdAt;
-
-      if (createdAtRaw is Timestamp) {
-        createdAt = createdAtRaw.toDate();
-      } else if (createdAtRaw is String) {
-        createdAt = DateTime.tryParse(createdAtRaw);
+      if (data['proses'] == 'sudah diverifikasi') {
+        tempValidasi++;
       }
 
-      if (createdAt != null &&
-          createdAt.isAfter(monthStart) &&
-          createdAt.isBefore(monthEnd)) {
-        if (data['isValidated'] == true) {
-          tempValidasi++;
-        }
+      final status = (data['status'] ?? '').toString().toLowerCase();
+      if (status == 'retail') {
+        tempTrukMasuk++;
+        tempTimbanganMasuk += (data['coalWeight'] as num?)?.toDouble() ?? 0.0;
+      }
 
-        if ((data['masuk'] ?? '').toString().isNotEmpty) {
-          tempMasuk++;
-        }
-
-        if ((data['keluar'] ?? '').toString().isNotEmpty) {
-          tempKeluar++;
-        }
-
-        final status = (data['status'] ?? '').toString().toLowerCase();
-
-        // Hitung total coalWeight berdasarkan status
-        if (status == 'retail') {
-          tempTimbanganMasuk += (data['coalWeight'] ?? 0.0);
-        }
-
-        if (status == 'pindah stok') {
-          tempTimbanganKeluar += (data['coalWeight'] ?? 0.0);
-        }
+      if (status == 'pindah stok') {
+        tempTrukKeluar++;
+        tempTimbanganKeluar += (data['coalWeight'] as num?)?.toDouble() ?? 0.0;
       }
     }
 
     setState(() {
-  bulanAkumulasi = '${getMonth(now.month)} ${now.year}';
       validasi = tempValidasi;
-      trukMasuk = tempMasuk;
-      trukKeluar = tempKeluar;
+      trukMasuk = tempTrukMasuk;
+      trukKeluar = tempTrukKeluar;
       timbanganMasuk = tempTimbanganMasuk;
       timbanganKeluar = tempTimbanganKeluar;
     });
@@ -147,9 +153,12 @@ class _HomeState extends State<Home> {
                 value: '$validasi',
               ),
               const SizedBox(height: 30),
+              // Pastikan truckreportView menerima trukMasuk jika Anda ingin menampilkannya di sana
               truckreportView(
+                trukMasuk: trukMasuk.toString(),
                 trukKeluar: trukKeluar.toString(),
               ),
+
               const SizedBox(height: 20),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -157,16 +166,14 @@ class _HomeState extends State<Home> {
                   timbanganView(
                     'TIMBANGAN MASUK',
                     'assets/img/masuk.png',
-                    value: timbanganMasuk.toStringAsFixed(
-                      2,
-                    ), 
+                    // MODIFIKASI: Tambahkan ' Kg' di sini
+                    value: '${timbanganMasuk.toStringAsFixed(2)} Kg',
                   ),
                   timbanganView(
                     'TIMBANGAN KELUAR',
                     'assets/img/keluar.png',
-                    value: timbanganKeluar.toStringAsFixed(
-                      2,
-                    ), 
+                    // MODIFIKASI: Tambahkan ' Kg' di sini
+                    value: '${timbanganKeluar.toStringAsFixed(2)} Kg',
                   ),
                 ],
               ),

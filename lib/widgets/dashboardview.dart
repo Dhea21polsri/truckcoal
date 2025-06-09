@@ -104,7 +104,7 @@ profileView() {
   );
 }
 
-truckreportView({required String trukKeluar}) {
+truckreportView({required String trukMasuk, required String trukKeluar}) {
   return Card(
     color: Colors.white,
     margin: const EdgeInsets.symmetric(horizontal: 10),
@@ -133,18 +133,15 @@ truckreportView({required String trukKeluar}) {
                     color: Colors.black,
                   ),
                 ),
-                const SizedBox(height: 8),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      '$trukKeluar',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
+                const SizedBox(height: 5),
+                Text(
+                  // Menampilkan total tanpa label
+                  '${int.parse(trukMasuk) + int.parse(trukKeluar)}',
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
                 ),
               ],
             ),

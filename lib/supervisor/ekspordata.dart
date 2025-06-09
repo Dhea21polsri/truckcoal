@@ -6,7 +6,6 @@ import 'package:intl/intl.dart';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/widgets.dart' as pw;
-import 'package:printing/printing.dart';
 import 'package:open_file/open_file.dart';
 import 'package:truckcoal_app/widgets/appbarview.dart';
 import 'package:truckcoal_app/widgets/backgroundview.dart';
@@ -63,7 +62,7 @@ class EkspordataState extends State<Ekspordata> {
             .get();
 
     return querySnapshot.docs.map((doc) {
-      return doc.data() as Map<String, dynamic>;
+      return doc.data();
     }).toList();
   }
 
@@ -198,14 +197,13 @@ class EkspordataState extends State<Ekspordata> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: appBarView('Tambah User'),
+      appBar: appBarView('Ekspor Data'),
       body: Container(
         padding: EdgeInsets.all(10),
         decoration: backgroundView3(),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Dropdown untuk Status
             Text(
               'Status',
               style: TextStyle(
@@ -216,7 +214,7 @@ class EkspordataState extends State<Ekspordata> {
             ),
             const SizedBox(height: 10),
             Container(
-              width: double.infinity, // Membuat lebar container penuh
+              width: double.infinity, 
               padding: const EdgeInsets.symmetric(horizontal: 10),
               decoration: BoxDecoration(
                 color: Colors.white,
@@ -251,7 +249,7 @@ class EkspordataState extends State<Ekspordata> {
 
             // Dropdown untuk Bulan
             Text(
-              'Bulan',
+              'Periode',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w500,
@@ -293,46 +291,55 @@ class EkspordataState extends State<Ekspordata> {
             ),
             const SizedBox(height: 20),
 
-            ElevatedButton(
-              onPressed: generatePDF,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFC1EA99),
-                minimumSize: const Size(double.infinity, 70),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-
-              // Tombol Ekspor Data ke PDF
-              child: Text(
-                'PDF',
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  fontFamily: GoogleFonts.lexend().fontFamily,
-                ),
-              ),
-            ),
-            // Tombol Ekspor Data ke Excel
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: generateExcel,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF7BAB99),
-                minimumSize: const Size(double.infinity, 70),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-              child: Text(
-                'Excel',
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  fontFamily: GoogleFonts.lexend().fontFamily,
-                ),
+            Center(
+              child: Column(
+                mainAxisAlignment:
+                    MainAxisAlignment
+                        .center, // Menjaga agar kolom berada di tengah
+                children: [
+                  const SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: generatePDF,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFC1EA99),
+                      minimumSize: const Size(350, 60),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    // Tombol Ekspor Data ke PDF
+                    child: Text(
+                      'PDF',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: GoogleFonts.lexend().fontFamily,
+                      ),
+                    ),
+                  ),
+                  // Tombol Ekspor Data ke Excel
+                  const SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: generateExcel,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF7BAB99),
+                      minimumSize: const Size(350, 60),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    child: Text(
+                      'Excel',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: GoogleFonts.lexend().fontFamily,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ],

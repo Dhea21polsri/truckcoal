@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="gcm_defaultSenderId" translatable="false">522745813269</string>
+    <string name="google_api_key" translatable="false">AIzaSyCUj1c3uH-_IFVglDljhNKQBsE0s18ybQ8</string>
+    <string name="google_app_id" translatable="false">1:522745813269:android:cb6a38dd20950e29aab11c</string>
+    <string name="google_crash_reporting_api_key" translatable="false">AIzaSyCUj1c3uH-_IFVglDljhNKQBsE0s18ybQ8</string>
+    <string name="google_storage_bucket" translatable="false">truckcoal-7ea59.firebasestorage.app</string>
+    <string name="project_id" translatable="false">truckcoal-7ea59</string>
+</resources>
